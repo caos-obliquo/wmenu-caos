@@ -1,81 +1,49 @@
 # wmenu-dwlb
 
-Fork of [wmenu](https://git.sr.ht/~adnano/wmenu), a Wayland-native dmenu replacement.
+Fork of [wmenu](https://git.sr.ht/~adnano/wmenu), a Wayland-native dmenu replacement, optimized for `dwl` and `dwlb`.
 
-This fork adds two positioning modes that integrate with [dwlb-geometry](link-to-dwlb-geometry):
+## Core Features
 
-- `-t`: positions wmenu inside the bar's title section
-- `-c`: centers wmenu on screen with proper margins
+### 1. Integrated Positioning Modes
+- **Title Bar Mode (`-t`)**: Positions the menu seamlessly inside the `dwlb` status bar by reading coordinates from `/tmp/dwlb-geometry`.
+- **Centered Mode (`-c`)**: Creates a centered floating popup with a fixed minimum width (800px) and dynamic height, ideal for clipboard pickers and app launchers.
 
-Colors are read from `config.h` at compile time and should match your bar theme.
+### 2. Image Preview Protocol (Cairo Rendering)
+This fork introduces a native Cairo-based PNG rendering engine. It allows inline image thumbnails within the menu items.
 
-## What was changed
+**Protocol**: `[img:/path/to/image.png] Item Text`
+- If an item starts with `[img:path]`, `wmenu-dwlb` renders the image as a 96x96 thumbnail.
+- The `[img:path]` prefix is stripped before the selection is outputted to stdout.
 
-### New flag: `-t` (title bar mode)
+### 3. Dynamic Height Calculation
+To prevent items from being cut off (especially when mixing images and text), the menu dynamically calculates its surface height based on the number of items and their type (thumbnail vs. text), capped at 15 entries.
 
-Reads `/tmp/dwlb-geometry` to position itself exactly inside the dwlb title section. The file is written by dwlb-geometry on every render and contains the middle section's x position, width, and height. wmenu uses these values to set the layer surface size and margin, making it appear seamlessly inside the bar.
-
-### New flag: `-c` (centered mode)
-
-Centers wmenu horizontally on screen with configurable side margins. Useful for tools that shouldn't appear inside the bar — clipboard picker, passmenu, etc.
-
-### `config.h`
-
-The upstream project had no `config.h`. This fork requires one to define bar colors and height:
+## Configuration (`config.h`)
+Colors and bar dimensions are defined at compile-time to ensure a consistent theme without bloated runtime flags.
 
 ```c
-static const unsigned int dwlb_middle_bg  = 0xbd93f9ff; /* bar background */
-static const unsigned int dwlb_middle_fg  = 0xf8f8f2ff; /* bar foreground */
+static const unsigned int dwlb_middle_bg  = 0xbd93f9ff; /* Bar background */
+static const unsigned int dwlb_middle_fg  = 0xf8f8f2ff; /* Bar foreground */
 static const unsigned int dwlb_bar_height = 30;
 ```
 
-These values are used in `menu.c` to set `normalbg`, `normalfg`, `promptbg`, `promptfg`, and `selectionbg`/`selectionfg` at startup, so wmenu inherits the bar's look without needing runtime color flags.
-
-### `menu.c`
-
-- Default colors now come from `config.h` instead of being hardcoded
-- `selectionbg` and `selectionfg` set to match the active bar colors
-
-### `wayland.c`
-
-- Fixed undefined `CALCULATE_LEFT_MARGIN` / `CALCULATE_RIGHT_MARGIN` macros in the `-t` fallback path (these were left undefined in the last commit of the original fork)
-- `-c` mode now sets horizontal margins to create visible gaps on each side
-
-## Requirements
-
-- [dwlb-geometry](link-to-dwlb-geometry) — must be running so `/tmp/dwlb-geometry` exists
-- dwl compositor
-- wayland-client, cairo, pango, xkbcommon
-
 ## Installation
-
 ```bash
-cp config.h.example config.h   # or copy from dotfiles
-# edit config.h to match your bar colors and height
+cp config.h.example config.h
+# edit config.h to match your theme
 rm -rf build
 meson setup build
 ninja -C build
 sudo ninja -C build install
 ```
 
-## Usage
-
-App launcher inside bar (bind to Super+D in dwl config.h):
-
-```c
-static const char *menucmd[] = { "wmenu-run", "-t", NULL };
-```
-
-Clipboard picker centered on screen (bind to Super+P):
+## Example Usage: Clipboard Picker
+Combine with `kapc` (text) and `cclip` (images) for a powerful clipboard manager:
 
 ```bash
-cliphist list | wmenu -c -l 15 | cliphist decode | wl-copy
-```
-
-## Horizontal margin tuning
-
-The `-c` mode side margins are hardcoded in `wayland.c`. Search for `set_margin` and adjust the value to your screen width:
-
-```c
-zwlr_layer_surface_v1_set_margin (layer_surface, -1, 420, -1, 420);
+# Example integrated pipeline (see contrib/clipboard-pick.sh)
+{
+    kapc search "" -L
+    # Imagine loop generating [img:/tmp/kt/id.png] id
+} | wmenu -c -l 15 -p "clip:"
 ```
