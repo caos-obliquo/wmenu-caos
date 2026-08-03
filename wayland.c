@@ -612,7 +612,6 @@ menu_run (struct menu *menu)
         {
           desired_height += menu->items[i].thumb_path ? 96 : menu->line_height;
         }
-      menu->height = desired_height;
 
       // Center on the first output in the registry list. context->output is
       // only set by the wl_surface enter handler, which fires after the first
@@ -632,6 +631,13 @@ menu_run (struct menu *menu)
           if (frame_width > logical_width)
             frame_width = logical_width;
 
+          // Cap the effective height so the panel never exceeds the output.
+          if (desired_height > logical_height)
+            {
+              desired_height = logical_height * 85 / 100;
+            }
+          menu->height = desired_height;
+
           int margin = (logical_height - desired_height) / 2;
           if (margin < 0)
             margin = 0;
@@ -644,6 +650,7 @@ menu_run (struct menu *menu)
       else
         {
           // No output known yet: fall back to top-anchored sizing.
+          menu->height = desired_height;
           zwlr_layer_surface_v1_set_size (layer_surface, menu->width,
                                           menu->height);
           zwlr_layer_surface_v1_set_margin (layer_surface, 0, 0, 0, 0);

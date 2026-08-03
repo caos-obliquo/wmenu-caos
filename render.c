@@ -195,7 +195,7 @@ render_vertical_item (struct menu *menu, cairo_t *cairo, struct item *item,
   render_text (menu, cairo, item->text, x + thumb_size + menu->padding, y,
                menu->width - x - thumb_size - menu->padding, 0, fg_color,
                menu->padding, 0);
-  return item->thumb_path ? thumb_size : menu->line_height;
+  return item->thumb_path ? 96 : menu->line_height;
 }
 
 // Renders a page of menu items horizontally.
