@@ -589,9 +589,8 @@ menu_run (struct menu *menu)
                | ZWLR_LAYER_SURFACE_V1_ANCHOR_LEFT;
       break;
     case POSITION_CENTER:
-      // No horizontal anchor: the compositor centers the surface on X.
-      anchor = ZWLR_LAYER_SURFACE_V1_ANCHOR_TOP
-               | ZWLR_LAYER_SURFACE_V1_ANCHOR_BOTTOM;
+      // No anchors: the compositor centers the surface on both X and Y.
+      anchor = 0;
       break;
     }
 
@@ -638,14 +637,10 @@ menu_run (struct menu *menu)
             }
           menu->height = desired_height;
 
-          int margin = (logical_height - desired_height) / 2;
-          if (margin < 0)
-            margin = 0;
-
+          // No anchor is set, so wlroots ignores margins and auto-centers.
           zwlr_layer_surface_v1_set_size (layer_surface, frame_width,
                                           desired_height);
-          zwlr_layer_surface_v1_set_margin (layer_surface, margin, 0, margin,
-                                            0);
+          zwlr_layer_surface_v1_set_margin (layer_surface, 0, 0, 0, 0);
         }
       else
         {
