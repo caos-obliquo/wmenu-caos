@@ -209,7 +209,7 @@ menu_getopts (struct menu *menu, int argc, char *argv[])
 
   int height = get_font_height (menu->font);
   menu->line_height = height + 2;
-  menu->height = dwlb_bar_height;
+  menu->height = menu->line_height;
   if (menu->lines > 0)
     {
       int actual_lines
@@ -219,7 +219,7 @@ menu_getopts (struct menu *menu, int argc, char *argv[])
       for (int i = 0; i < actual_lines && i < (int)menu->item_count; i++)
         {
           struct item *item = &menu->items[i];
-          menu->height += item->thumb_path ? 96 : menu->line_height;
+          menu->height += item->thumb_path ? 160 : menu->line_height;
         }
     }
   menu->padding = height / 2;
@@ -326,10 +326,10 @@ page_items (struct menu *menu)
           int page_height = 0;
           int max_height = menu->height - menu->line_height;
           while (item
-                 && page_height + (item->thumb_path ? 96 : menu->line_height)
+                 && page_height + (item->thumb_path ? 160 : menu->line_height)
                         <= max_height)
             {
-              page_height += item->thumb_path ? 96 : menu->line_height;
+              page_height += item->thumb_path ? 160 : menu->line_height;
               item->page = page;
               page->last = item;
               item = item->next_match;
@@ -528,7 +528,7 @@ menu_render_items (struct menu *menu)
   /* recalculate height now that all items are loaded */
   if (menu->lines > 0)
     {
-      menu->height = dwlb_bar_height;
+      menu->height = menu->line_height;
       int actual_lines
           = (menu->item_count > 0 && menu->item_count < (size_t)menu->lines)
                 ? (int)menu->item_count
@@ -536,7 +536,7 @@ menu_render_items (struct menu *menu)
       for (int i = 0; i < actual_lines && i < (int)menu->item_count; i++)
         {
           struct item *item = &menu->items[i];
-          menu->height += item->thumb_path ? 96 : menu->line_height;
+          menu->height += item->thumb_path ? 160 : menu->line_height;
         }
     }
 

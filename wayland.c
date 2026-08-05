@@ -609,7 +609,7 @@ menu_run (struct menu *menu)
       size_t capped_item_count = menu->item_count > 15 ? 15 : menu->item_count;
       for (size_t i = 0; i < capped_item_count; i++)
         {
-          desired_height += menu->items[i].thumb_path ? 96 : menu->line_height;
+          desired_height += menu->items[i].thumb_path ? 160 : menu->line_height;
         }
 
       // Center on the first output in the registry list. context->output is

@@ -167,14 +167,15 @@ render_vertical_item (struct menu *menu, cairo_t *cairo, struct item *item,
   if (menu->sel == item)
     {
       cairo_set_source_u32 (cairo, menu->selectionbg);
-      cairo_rectangle (cairo, 0, y, menu->width, menu->line_height);
+      cairo_rectangle (cairo, 0, y, menu->width,
+                       (item->thumb_path ? 160 : menu->line_height));
       cairo_fill (cairo);
     }
 
   int thumb_size = 0;
   if (item->thumb_path)
     {
-      thumb_size = 64;
+      thumb_size = 128;
       cairo_surface_t *img
           = cairo_image_surface_create_from_png (item->thumb_path);
       if (cairo_surface_status (img) == CAIRO_STATUS_SUCCESS)
@@ -195,7 +196,7 @@ render_vertical_item (struct menu *menu, cairo_t *cairo, struct item *item,
   render_text (menu, cairo, item->text, x + thumb_size + menu->padding, y,
                menu->width - x - thumb_size - menu->padding, 0, fg_color,
                menu->padding, 0);
-  return item->thumb_path ? 96 : menu->line_height;
+  return item->thumb_path ? 160 : menu->line_height;
 }
 
 // Renders a page of menu items horizontally.
@@ -241,7 +242,7 @@ static void
 render_to_cairo (struct menu *menu, cairo_t *cairo)
 {
   // Opaque-or-alpha solid panel; alpha comes from -N (RRGGBBAA).
-  cairo_set_operator (cairo, CAIRO_OPERATOR_SOURCE);
+  cairo_set_operator (cairo, CAIRO_OPERATOR_OVER);
   cairo_set_source_rgba (cairo, (menu->normalbg >> 24 & 0xFF) / 255.0,
                          (menu->normalbg >> 16 & 0xFF) / 255.0,
                          (menu->normalbg >> 8 & 0xFF) / 255.0,
