@@ -1,49 +1,85 @@
-# wmenu-dwlb
+# wmenu.caos
 
-Fork of [wmenu](https://git.sr.ht/~adnano/wmenu), a Wayland-native dmenu replacement, optimized for `dwl` and `dwlb`.
+dmenu-style Wayland picker with image thumbnail previews and dwlb-style
+positioning. Fork of [wmenu](https://sr.ht/~adnano/wmenu/), tuned for use with
+[dwl](https://codeberg.org/dwl/dwl) and dwlb.
 
-## Core Features
+## Features
 
-### 1. Integrated Positioning Modes
-- **Title Bar Mode (`-t`)**: Positions the menu seamlessly inside the `dwlb` status bar by reading coordinates from `/tmp/dwlb-geometry`.
-- **Centered Mode (`-c`)**: Creates a centered floating popup with a fixed minimum width (800px) and dynamic height, ideal for clipboard pickers and app launchers.
+- `[img:<path>]` PNG thumbnail protocol: an item line may carry an inline
+  image. The PNG is scaled to 128px on its longest side and drawn vertically
+  centered in a 160px row; the `[img:]` prefix is stripped before the selection
+  is printed to stdout, so callers receive the plain text line.
+- `-t` top-center (title-bar) positioning: reads the dwlb active-monitor
+  geometry from `/tmp/dwlb-geometry` when present, so the bar overlays the
+  correct monitor.
+- `-c` centered positioning.
+- Panel height capped at 15 entries (overflow pages with arrow-key navigation).
+- dwlb-matching color defaults in `config.h`.
 
-### 2. Image Preview Protocol (Cairo Rendering)
-This fork introduces a native Cairo-based PNG rendering engine. It allows inline image thumbnails within the menu items.
+## Requirements
 
-**Protocol**: `[img:/path/to/image.png] Item Text`
-- If an item starts with `[img:path]`, `wmenu-dwlb` renders the image as a 96x96 thumbnail.
-- The `[img:path]` prefix is stripped before the selection is outputted to stdout.
+- wayland-client, wayland-protocols, xkbcommon
+- cairo, pango, pangocairo
+- meson, ninja, a C11 compiler
 
-### 3. Dynamic Height Calculation
-To prevent items from being cut off (especially when mixing images and text), the menu dynamically calculates its surface height based on the number of items and their type (thumbnail vs. text), capped at 15 entries.
+## Build and install
 
-## Configuration (`config.h`)
-Colors and bar dimensions are defined at compile-time to ensure a consistent theme without bloated runtime flags.
+	meson setup build
+	ninja -C build
+	sudo ninja -C build install
 
-```c
-static const unsigned int dwlb_middle_bg  = 0xbd93f9ff; /* Bar background */
-static const unsigned int dwlb_middle_fg  = 0xf8f8f2ff; /* Bar foreground */
-static const unsigned int dwlb_bar_height = 30;
-```
+Builds `wmenu` (the picker) and `wmenu-run` (run-mode helper). Default prefix is
+`/usr/local`; change it with `meson setup build -Dprefix=$HOME/.local`.
 
-## Installation
-```bash
-cp config.h.example config.h
-# edit config.h to match your theme
-rm -rf build
-meson setup build
-ninja -C build
-sudo ninja -C build install
-```
+## Options
 
-## Example Usage: Clipboard Picker
-Combine with `kapc` (text) and `cclip` (images) for a powerful clipboard manager:
+	-b        position menu at the bottom
+	-c        position menu centered
+	-t        position menu at the top center (title-bar mode)
+	-i        case-insensitive matching
+	-P        password mode (hide input)
+	-h        print usage
+	-v        print version
+	-f FONT   pango font description
+	-l LINES  number of lines to show
+	-o X      offset of the menu from the prompt
+	-p PROMPT prompt text
+	-N COLOR  normal background color (#RRGGBBAA)
+	-n COLOR  normal foreground color
+	-M COLOR  selection background color
+	-m COLOR  selection foreground color
+	-S COLOR  selection highlight background (#RRGGBBAA)
+	-s COLOR  selection highlight foreground
+	-B COLOR  menu background color
+	-w WIDTH  menu width in pixels
 
-```bash
-# Example integrated pipeline (see contrib/clipboard-pick.sh)
-{
-    kapc search "" -L
-    # Imagine loop generating [img:/tmp/kt/id.png] id
-} | wmenu -c -l 15 -p "clip:"
-```
+## Image thumbnails
+
+Feed items as `[img:/path/to.png]<text>` lines. The thumbnail is scaled to
+128px on its longest side (a wide 16:9 image draws ~72px tall) and centered in a
+160px row, keeping mixed-aspect clips aligned. The selection written to stdout
+is the plain `<text>` line, `[img:]` prefix stripped.
+
+The [wclipmenu](https://github.com/caos-obliquo/wclipmenu) clipboard picker uses
+this protocol to show clipboard image history:
+
+	kapc search -t image/png -L -l 100 | wclipmenu image
+
+## Configuration
+
+Colors live in `config.h` (tracked; defaults match the dwlb active-monitor
+palette):
+
+	dwlb_middle_bg    bar mode (-t) background, #RRGGBBAA
+	dwlb_middle_fg    bar mode (-t) foreground
+	dwlb_bar_height   bar mode (-t) height in pixels
+
+Edit `config.h` and rebuild.
+
+## Credits
+
+- [wmenu](https://sr.ht/~adnano/wmenu/): upstream project
+- [wclipmenu](https://github.com/caos-obliquo/wclipmenu): consumer of the
+  `[img:]` protocol
+- [dwl](https://codeberg.org/dwl/dwl): the window manager this targets
