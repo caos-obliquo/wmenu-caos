@@ -161,15 +161,42 @@ static int
 render_vertical_item (struct menu *menu, cairo_t *cairo, struct item *item,
                       int x, int y)
 {
-  uint32_t bg_color = menu->sel == item ? menu->selectionbg
-                                        : (menu->position == POSITION_CENTER
-                                               ? 0x00000000
-                                               : menu->normalbg);
   uint32_t fg_color = menu->sel == item ? menu->selectionfg : menu->normalfg;
 
-  render_text (menu, cairo, item->text, x, y, menu->width - x, bg_color,
-               fg_color, menu->padding, 0);
-  return menu->line_height;
+  // Solid highlight block spanning the whole box width (pinentry style).
+  if (menu->sel == item)
+    {
+      cairo_set_source_u32 (cairo, menu->selectionbg);
+      cairo_rectangle (cairo, 0, y, menu->width,
+                       (item->thumb_path ? 160 : menu->line_height));
+      cairo_fill (cairo);
+    }
+
+  int thumb_size = 0;
+  if (item->thumb_path)
+    {
+      thumb_size = 128;
+      cairo_surface_t *img
+          = cairo_image_surface_create_from_png (item->thumb_path);
+      if (cairo_surface_status (img) == CAIRO_STATUS_SUCCESS)
+        {
+          int iw = cairo_image_surface_get_width (img);
+          int ih = cairo_image_surface_get_height (img);
+          double scale = (double)thumb_size / (iw > ih ? iw : ih);
+          cairo_save (cairo);
+          cairo_translate (cairo, x + menu->padding, y);
+          cairo_scale (cairo, scale, scale);
+          cairo_set_source_surface (cairo, img, 0, 0);
+          cairo_paint (cairo);
+          cairo_restore (cairo);
+        }
+      cairo_surface_destroy (img);
+    }
+
+  render_text (menu, cairo, item->text, x + thumb_size + menu->padding, y,
+               menu->width - x - thumb_size - menu->padding, 0, fg_color,
+               menu->padding, 0);
+  return item->thumb_path ? 160 : menu->line_height;
 }
 
 // Renders a page of menu items horizontally.
@@ -214,27 +241,13 @@ render_vertical_page (struct menu *menu, cairo_t *cairo, struct page *page)
 static void
 render_to_cairo (struct menu *menu, cairo_t *cairo)
 {
-  // Render background
-  cairo_set_operator (cairo, CAIRO_OPERATOR_SOURCE);
-  if (menu->position == POSITION_CENTER)
-    {
-      // fully transparent background
-      cairo_set_source_rgba (cairo, 0.157, 0.165, 0.212, 0.85);
-      cairo_paint (cairo);
-      // border rectangle
-      cairo_set_operator (cairo, CAIRO_OPERATOR_OVER);
-      double bw = 1.5; // border width in px
-      int w = menu->width, h = menu->height;
-      cairo_rectangle (cairo, bw / 2, bw / 2, w - bw, h - bw);
-      cairo_set_line_width (cairo, bw);
-      cairo_set_source_u32 (cairo, menu->normalfg);
-      cairo_stroke (cairo);
-    }
-  else
-    {
-      cairo_set_source_u32 (cairo, menu->normalbg);
-      cairo_paint (cairo);
-    }
+  // Opaque-or-alpha solid panel; alpha comes from -N (RRGGBBAA).
+  cairo_set_operator (cairo, CAIRO_OPERATOR_OVER);
+  cairo_set_source_rgba (cairo, (menu->normalbg >> 24 & 0xFF) / 255.0,
+                         (menu->normalbg >> 16 & 0xFF) / 255.0,
+                         (menu->normalbg >> 8 & 0xFF) / 255.0,
+                         (menu->normalbg & 0xFF) / 255.0);
+  cairo_paint (cairo);
 
   // Render prompt and input
   render_prompt (menu, cairo);
@@ -242,17 +255,28 @@ render_to_cairo (struct menu *menu, cairo_t *cairo)
   render_cursor (menu, cairo);
 
   // Render selected page
-  if (!menu->sel)
+  if (menu->sel)
     {
-      return;
+      if (menu->lines > 0)
+        {
+          render_vertical_page (menu, cairo, menu->sel->page);
+        }
+      else
+        {
+          render_horizontal_page (menu, cairo, menu->sel->page);
+        }
     }
-  if (menu->lines > 0)
+
+  // 2px border frame around the whole box, drawn on top.
+  if (menu->position == POSITION_CENTER)
     {
-      render_vertical_page (menu, cairo, menu->sel->page);
-    }
-  else
-    {
-      render_horizontal_page (menu, cairo, menu->sel->page);
+      cairo_set_operator (cairo, CAIRO_OPERATOR_OVER);
+      double bw = 2.0;
+      cairo_set_line_width (cairo, bw);
+      cairo_set_source_u32 (cairo, menu->border);
+      cairo_rectangle (cairo, bw / 2, bw / 2, menu->width - bw,
+                       menu->height - bw);
+      cairo_stroke (cairo);
     }
 }
 
