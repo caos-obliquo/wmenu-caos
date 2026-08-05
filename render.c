@@ -183,8 +183,13 @@ render_vertical_item (struct menu *menu, cairo_t *cairo, struct item *item,
           int iw = cairo_image_surface_get_width (img);
           int ih = cairo_image_surface_get_height (img);
           double scale = (double)thumb_size / (iw > ih ? iw : ih);
+          /* center on the ACTUAL scaled height: for wide (16:9) thumbs the
+           * drawn height is ~72px, not thumb_size (128), so a constant
+           * offset would leave them visibly high in the 160px row */
+          int draw_h = (int)(ih * scale + 0.5);
           cairo_save (cairo);
-          cairo_translate (cairo, x + menu->padding, y);
+          cairo_translate (cairo, x + menu->padding,
+                           y + (160 - draw_h) / 2);
           cairo_scale (cairo, scale, scale);
           cairo_set_source_surface (cairo, img, 0, 0);
           cairo_paint (cairo);
@@ -193,7 +198,9 @@ render_vertical_item (struct menu *menu, cairo_t *cairo, struct item *item,
       cairo_surface_destroy (img);
     }
 
-  render_text (menu, cairo, item->text, x + thumb_size + menu->padding, y,
+  int text_offset = (item->thumb_path ? (160 - menu->line_height) / 2 : 0);
+  render_text (menu, cairo, item->text, x + thumb_size + menu->padding,
+               y + text_offset,
                menu->width - x - thumb_size - menu->padding, 0, fg_color,
                menu->padding, 0);
   return item->thumb_path ? 160 : menu->line_height;
