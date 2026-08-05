@@ -1,4 +1,4 @@
-# wmenu.caos
+# wmenu-caos
 
 dmenu-style Wayland picker with image thumbnail previews and dwlb-style
 positioning. Fork of [wmenu](https://sr.ht/~adnano/wmenu/), tuned for use with
