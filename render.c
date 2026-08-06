@@ -248,6 +248,12 @@ render_vertical_page (struct menu *menu, cairo_t *cairo, struct page *page)
 static void
 render_to_cairo (struct menu *menu, cairo_t *cairo)
 {
+  // Clear the reused ARGB32 buffer first: repainting OVER the previous
+  // frame without clearing compounds the panel alpha toward opaque on
+  // every keypress.
+  cairo_set_operator (cairo, CAIRO_OPERATOR_CLEAR);
+  cairo_paint (cairo);
+
   // Opaque-or-alpha solid panel; alpha comes from -N (RRGGBBAA).
   cairo_set_operator (cairo, CAIRO_OPERATOR_OVER);
   cairo_set_source_rgba (cairo, (menu->normalbg >> 24 & 0xFF) / 255.0,

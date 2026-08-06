@@ -604,10 +604,15 @@ menu_run (struct menu *menu)
           menu->width = min_width;
         }
 
-      // Desired height: prompt row plus up to 15 visible item rows.
+      // Desired height: prompt row plus the visible item rows (-l lines).
+      // Must mirror menu_render_items (menu.c) exactly — a mismatch between
+      // the two shows up as panel growth on the first keypress.
       int desired_height = menu->line_height;
-      size_t capped_item_count = menu->item_count > 15 ? 15 : menu->item_count;
-      for (size_t i = 0; i < capped_item_count; i++)
+      int actual_lines
+          = (menu->item_count > 0 && menu->item_count < (size_t)menu->lines)
+                ? (int)menu->item_count
+                : menu->lines;
+      for (int i = 0; i < actual_lines && i < (int)menu->item_count; i++)
         {
           desired_height += menu->items[i].thumb_path ? 160 : menu->line_height;
         }
