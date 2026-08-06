@@ -89,10 +89,10 @@ $PATH and runs the result.
 
 # IMAGES
 
-Lines beginning with [img:_path_], for example
-[img:/tmp/wclipmenu-thumb-42.png], render a PNG thumbnail: the image is scaled
+Lines beginning with \[img:_path_\], for example
+\[img:/tmp/wclipmenu-thumb-42.png\], render a PNG thumbnail: the image is scaled
 to 128px on its longest side and vertically centered in a 160px row. The
-[img:...] prefix is stripped before the item is printed to stdout.
+\[img:...\] prefix is stripped before the item is printed to stdout.
 
 # USAGE
 
