@@ -6,14 +6,15 @@ wmenu - dynamic menu for Wayland
 
 # SYNOPSIS
 
-*wmenu* [-biPv] \
+*wmenu* [-bctiPv] \
   [-f _font_] \
   [-l _lines_] \
   [-o _output_] \
   [-p _prompt_] \
   [-N _color_] [-n _color_] \
   [-M _color_] [-m _color_] \
-  [-S _color_] [-s _color_]
+  [-S _color_] [-s _color_] \
+  [-B _color_] [-w _width_]
 
 *wmenu-run* ...
 
@@ -31,6 +32,13 @@ $PATH and runs the result.
 
 *-b*
 	wmenu appears at the bottom of the screen.
+
+*-c*
+	wmenu is centered on the output.
+
+*-t*
+	wmenu appears as a top-center title bar; its geometry is read from
+	/tmp/dwlb-geometry.
 
 *-i*
 	wmenu matches menu items case insensitively.
@@ -72,6 +80,19 @@ $PATH and runs the result.
 
 *-s* _RRGGBB[AA]_
 	defines the selection foreground color.
+
+*-B* _RRGGBB[AA]_
+	defines the menu background color.
+
+*-w* _width_
+	defines the menu width (clamped to 3/5 of the output width, 400-900px).
+
+# IMAGES
+
+Lines beginning with \[img:_path_\], for example
+\[img:/tmp/wclipmenu-thumb-42.png\], render a PNG thumbnail: the image is scaled
+to 128px on its longest side and vertically centered in a 160px row. The
+\[img:...\] prefix is stripped before the item is printed to stdout.
 
 # USAGE
 
