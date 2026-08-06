@@ -29,3 +29,12 @@ First release.
 
 - Transparent image-picker background (`CAIRO_OPERATOR_OVER`)
 - Thumbnail vertical centering in rows (actual drawn height, not constant)
+
+## [0.2.1] - 2026-08-05
+
+### Fixed
+
+- Panel growing on every ArrowDown: height now computed from the `-l` lines
+  setting, not a hardcoded 15-item cap
+- Panel transparency fading to opaque: buffers cleared before each repaint
+  instead of compositing over the previous frame

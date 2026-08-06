@@ -14,7 +14,7 @@ positioning. Fork of [wmenu](https://sr.ht/~adnano/wmenu/), tuned for use with
   geometry from `/tmp/dwlb-geometry` when present, so the bar overlays the
   correct monitor.
 - `-c` centered positioning.
-- Panel height capped at 15 entries (overflow pages with arrow-key navigation).
+- Vertical lists page with arrow keys: `-l` entries per page, image rows 160px tall.
 - dwlb-matching color defaults in `config.h`.
 
 ## Requirements
@@ -64,7 +64,7 @@ is the plain `<text>` line, `[img:]` prefix stripped.
 The [wclipmenu](https://github.com/caos-obliquo/wclipmenu) clipboard picker uses
 this protocol to show clipboard image history:
 
-	kapc search -t image/png -L -l 100 | wclipmenu image
+	wclipmenu image
 
 ## Configuration
 
