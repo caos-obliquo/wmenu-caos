@@ -85,7 +85,7 @@ $PATH and runs the result.
 	defines the menu background color.
 
 *-w* _width_
-	defines the menu width.
+	defines the menu width (clamped to 3/5 of the output width, 400-900px).
 
 # IMAGES
 

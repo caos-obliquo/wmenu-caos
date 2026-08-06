@@ -4,6 +4,15 @@ All notable changes to this project are documented here.
 The format is based on [Keep a Changelog](https://keepachangelog.com/), and
 this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [0.2.1] - 2026-08-05
+
+### Fixed
+
+- Panel growing on every ArrowDown: height now computed from the `-l` lines
+  setting, not a hardcoded 15-item cap
+- Panel transparency fading to opaque: buffers cleared before each repaint
+  instead of compositing over the previous frame
+
 ## [0.2.0] - 2026-08-04
 
 First release.
@@ -15,7 +24,6 @@ First release.
 - Vertical image list layout (paged, `-l` entries per page)
 - dwlb-style positioning: `-t` top-center title bar (reads
   `/tmp/dwlb-geometry`), `-c` centered
-- Panel height capped at 15 entries
 - `wmenu-run` companion binary
 
 ### Changed
@@ -29,12 +37,3 @@ First release.
 
 - Transparent image-picker background (`CAIRO_OPERATOR_OVER`)
 - Thumbnail vertical centering in rows (actual drawn height, not constant)
-
-## [0.2.1] - 2026-08-05
-
-### Fixed
-
-- Panel growing on every ArrowDown: height now computed from the `-l` lines
-  setting, not a hardcoded 15-item cap
-- Panel transparency fading to opaque: buffers cleared before each repaint
-  instead of compositing over the previous frame
