@@ -54,6 +54,45 @@ Builds `wmenu` (the picker) and `wmenu-run` (run-mode helper). Default prefix is
 	-B COLOR  menu background color
 	-w WIDTH  menu width in pixels
 
+## Keyboard shortcuts
+
+Hardcoded in `menu.c`; no config. Emacs-style bindings with Ctrl/Alt.
+
+### Navigation
+
+| Key | Action |
+|---|---|
+| `Up` / `Ctrl+p` | previous match (or cursor up) |
+| `Down` / `Ctrl+n` | next match (or cursor down) |
+| `PgUp` / `Alt+k` | previous page |
+| `PgDn` / `Alt+j` | next page |
+| `Home` / `Ctrl+a` / `Alt+g` | first match / start of line |
+| `End` / `Ctrl+e` / `Alt+G` | last match / end of line |
+| `Left` / `Ctrl+b` | cursor left |
+| `Right` / `Ctrl+f` | cursor right |
+| `Alt+b` / `Alt+f` | word left / word right |
+
+### Editing
+
+| Key | Action |
+|---|---|
+| `Backspace` / `Ctrl+h` | delete char left |
+| `Delete` / `Ctrl+d` | delete char right |
+| `Ctrl+k` | delete to end of line |
+| `Ctrl+u` | delete to start of line |
+| `Ctrl+w` | delete word left |
+| `Ctrl+Y` | paste clipboard |
+| `Tab` / `Ctrl+i` | complete input from selected item |
+
+### Select / cancel
+
+| Key | Action |
+|---|---|
+| `Return` / `Ctrl+j` / `Ctrl+m` / KP_Enter | submit selected item |
+| `Shift+Return` | submit typed input (ignore selection) |
+| `Escape` / `Ctrl+c` / `Ctrl+g` / `Ctrl+[` | cancel |
+| printable | insert character (live filtering) |
+
 ## Image thumbnails
 
 Feed items as `[img:/path/to.png]<text>` lines. The thumbnail is scaled to
