@@ -34,7 +34,7 @@ menu_create (menu_callback callback)
   menu->normalfg = dwlb_middle_fg;
   menu->promptbg = dwlb_middle_bg;
   menu->promptfg = dwlb_middle_fg;
-  menu->selectionbg = 0xbd93f9ff;
+  menu->selectionbg = 0x5e35b1ff;
   menu->selectionfg = 0xf8f8f2ff;
   menu->border = 0x888888ff;
   menu->callback = callback;
