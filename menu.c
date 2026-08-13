@@ -34,8 +34,8 @@ menu_create (menu_callback callback)
   menu->normalfg = dwlb_middle_fg;
   menu->promptbg = dwlb_middle_bg;
   menu->promptfg = dwlb_middle_fg;
-  menu->selectionbg = 0x5e35b1ff;
-  menu->selectionfg = 0xf8f8f2ff;
+  menu->selectionbg = 0xbd93f9a6;
+  menu->selectionfg = 0x282a36ff;
   menu->border = 0x888888ff;
   menu->callback = callback;
   menu->test_surface = cairo_image_surface_create (CAIRO_FORMAT_ARGB32, 1, 1);
