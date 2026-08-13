@@ -24,16 +24,16 @@
 #include "xdg-activation-v1-client-protocol.h"
 
 static bool
-read_bar_geometry (uint32_t *left, uint32_t *width, uint32_t *height)
+read_bar_geometry (uint32_t *left, uint32_t *width, uint32_t *height, uint32_t *bg_color)
 {
   FILE *f = fopen ("/tmp/dwlb-geometry", "r");
   if (!f)
     return false;
 
-  int result = fscanf (f, "%u %u %u", left, width, height);
+  int result = fscanf (f, "%u %u %u %x", left, width, height, bg_color);
   fclose (f);
 
-  return result == 3;
+  return result == 4;
 }
 // A Wayland output.
 struct output
@@ -658,10 +658,16 @@ menu_run (struct menu *menu)
     }
   else if (menu->position == POSITION_TOP_CENTER)
     {
-      uint32_t bar_left = 0, bar_width = 0, bar_height = 0;
+      uint32_t bar_left = 0, bar_width = 0, bar_height = 0, bar_bg = 0;
 
-      if (read_bar_geometry (&bar_left, &bar_width, &bar_height))
+      if (read_bar_geometry (&bar_left, &bar_width, &bar_height, &bar_bg))
         {
+          /* Auto-match the dwlb middle background color */
+          if (bar_bg)
+            {
+              menu->normalbg = bar_bg;
+              menu->promptbg = bar_bg;
+            }
           // Got geometry from dwlb - use it!
           menu->height = bar_height;
 
