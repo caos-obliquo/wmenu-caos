@@ -302,19 +302,6 @@ render_to_cairo (struct menu *menu, cairo_t *cairo)
           render_horizontal_page (menu, cairo, menu->sel->page);
         }
     }
-
-  // 2px border frame around the whole box, drawn on top.
-  if (menu->position == POSITION_CENTER
-      || menu->position == POSITION_TOP_CENTER)
-    {
-      cairo_set_operator (cairo, CAIRO_OPERATOR_OVER);
-      double bw = 2.0;
-      cairo_set_line_width (cairo, bw);
-      cairo_set_source_u32 (cairo, menu->border);
-      rounded_rect (cairo, bw / 2, bw / 2, menu->width - bw,
-                    menu->height - bw, 10);
-      cairo_stroke (cairo);
-    }
 }
 
 // Renders a single frame of the menu.
