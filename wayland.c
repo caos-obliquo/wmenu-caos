@@ -646,6 +646,18 @@ menu_run (struct menu *menu)
     }
   else if (menu->position == POSITION_TOP_CENTER)
     {
+      // Match the dwl bar's logical height so the pill sits seamlessly on
+      // the bar even when appicons or HiDPI change its size.
+      FILE *f = fopen ("/tmp/dwl-bar-geometry", "r");
+      if (f)
+        {
+          int bar_height = 0;
+          if (fscanf (f, "%d", &bar_height) == 1 && bar_height > 0)
+            /* prompt row matches the bar height; dropdown lines extend below */
+            menu->height = bar_height + (menu->height - menu->line_height);
+          fclose (f);
+        }
+
       // Centered launcher box on the bar. dwl's bar spans the full output
       // width, so the box floats over its middle with bar-matched colors.
       struct output *output = context->output_list;
