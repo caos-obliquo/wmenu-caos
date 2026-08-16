@@ -23,18 +23,6 @@
 #include "wlr-layer-shell-unstable-v1-client-protocol.h"
 #include "xdg-activation-v1-client-protocol.h"
 
-static bool
-read_bar_geometry (uint32_t *left, uint32_t *width, uint32_t *height, uint32_t *bg_color, uint32_t *fg_color)
-{
-  FILE *f = fopen ("/tmp/dwlb-geometry", "r");
-  if (!f)
-    return false;
-
-  int result = fscanf (f, "%u %u %u %x %x", left, width, height, bg_color, fg_color);
-  fclose (f);
-
-  return result == 5;
-}
 // A Wayland output.
 struct output
 {
@@ -658,37 +646,25 @@ menu_run (struct menu *menu)
     }
   else if (menu->position == POSITION_TOP_CENTER)
     {
-      uint32_t bar_left = 0, bar_width = 0, bar_height = 0, bar_bg = 0, bar_fg = 0;
-
-      if (read_bar_geometry (&bar_left, &bar_width, &bar_height, &bar_bg, &bar_fg))
+      // Centered launcher box on the bar. dwl's bar spans the full output
+      // width, so the box floats over its middle with bar-matched colors.
+      struct output *output = context->output_list;
+      if (output)
         {
-          /* Auto-match the dwlb middle background + foreground colors */
-          if (bar_bg)
-            {
-              menu->normalbg = bar_bg;
-              menu->promptbg = bar_bg;
-            }
-          if (bar_fg)
-            {
-              menu->normalfg = bar_fg;
-              menu->promptfg = bar_fg;
-              /* inverted selection: dwlb fg on dwlb bg */
-              menu->selectionbg = bar_fg;
-              menu->selectionfg = bar_bg;
-            }
-          // Got geometry from dwlb - use it!
-          menu->height = bar_height;
-
-          // Get screen width from output
-
-          zwlr_layer_surface_v1_set_margin (layer_surface, 0, -1, 0,
-                                            bar_left); /* -1 means auto */
-          zwlr_layer_surface_v1_set_size (layer_surface, bar_width,
+          int logical_width = output->width / output->scale;
+          int box_width = wmenu_width;
+          if (box_width > logical_width)
+            box_width = logical_width;
+          menu->width = box_width;
+          int left_margin = (logical_width - box_width) / 2;
+          zwlr_layer_surface_v1_set_size (layer_surface, box_width,
                                           menu->height);
+          zwlr_layer_surface_v1_set_margin (layer_surface, 0, -1, 0,
+                                            left_margin);
         }
       else
         {
-          // Fallback to config.h values
+          /* No output known yet: content-width fallback. */
           zwlr_layer_surface_v1_set_size (layer_surface, 0, menu->height);
         }
     }
