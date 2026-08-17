@@ -646,38 +646,81 @@ menu_run (struct menu *menu)
     }
   else if (menu->position == POSITION_TOP_CENTER)
     {
-      // Match the dwl bar's logical height so the pill sits seamlessly on
-      // the bar even when appicons or HiDPI change its size.
+      // Match the dwl bar's middle section (title area) exactly.
+      // Geometry file format: middle_x middle_width bar_height middle_bg_argb fg_argb
       FILE *f = fopen ("/tmp/dwl-bar-geometry", "r");
       if (f)
         {
-          int bar_height = 0;
-          if (fscanf (f, "%d", &bar_height) == 1 && bar_height > 0)
-            /* prompt row matches the bar height; dropdown lines extend below */
-            menu->height = bar_height + (menu->height - menu->line_height);
-          fclose (f);
-        }
+          int middle_x = 0, middle_width = 0, bar_height = 0;
+          if (fscanf (f, "%d %d %d %*x %*x", &middle_x, &middle_width, &bar_height) == 3
+              && bar_height > 0 && middle_width > 0)
+            {
+              /* prompt row matches the bar height; dropdown lines extend below */
+              menu->height = bar_height + (menu->height - menu->line_height);
+              menu->width = middle_width;
 
-      // Centered launcher box on the bar. dwl's bar spans the full output
-      // width, so the box floats over its middle with bar-matched colors.
-      struct output *output = context->output_list;
-      if (output)
-        {
-          int logical_width = output->width / output->scale;
-          int box_width = wmenu_width;
-          if (box_width > logical_width)
-            box_width = logical_width;
-          menu->width = box_width;
-          int left_margin = (logical_width - box_width) / 2;
-          zwlr_layer_surface_v1_set_size (layer_surface, box_width,
-                                          menu->height);
-          zwlr_layer_surface_v1_set_margin (layer_surface, 0, -1, 0,
-                                            left_margin);
+              struct output *output = context->output_list;
+              if (output)
+                {
+                  int logical_width = output->width / output->scale;
+                  if (middle_x + middle_width <= logical_width)
+                    {
+                      /* Anchor at top-left, position exactly over title area */
+                      zwlr_layer_surface_v1_set_size (layer_surface, middle_width,
+                                                      menu->height);
+                      zwlr_layer_surface_v1_set_anchor (layer_surface,
+                          ZWLR_LAYER_SURFACE_V1_ANCHOR_TOP
+                          | ZWLR_LAYER_SURFACE_V1_ANCHOR_LEFT);
+                      zwlr_layer_surface_v1_set_margin (layer_surface, 0,
+                          logical_width - middle_x - middle_width, 0,
+                          middle_x);
+                    }
+                  else
+                    {
+                      /* Fallback: clamp to output */
+                      int box_width = middle_width;
+                      if (box_width > logical_width)
+                        box_width = logical_width;
+                      menu->width = box_width;
+                      int left_margin = (logical_width - box_width) / 2;
+                      zwlr_layer_surface_v1_set_size (layer_surface, box_width,
+                                                      menu->height);
+                      zwlr_layer_surface_v1_set_margin (layer_surface, 0, -1, 0,
+                                                        left_margin);
+                    }
+                }
+              else
+                {
+                  /* No output known yet: content-width fallback. */
+                  zwlr_layer_surface_v1_set_size (layer_surface, menu->width,
+                                                  menu->height);
+                  zwlr_layer_surface_v1_set_margin (layer_surface, 0, 0, 0, 0);
+                }
+            }
+          fclose (f);
         }
       else
         {
-          /* No output known yet: content-width fallback. */
-          zwlr_layer_surface_v1_set_size (layer_surface, 0, menu->height);
+          /* No geometry file: fall back to centered wmenu_width. */
+          struct output *output = context->output_list;
+          if (output)
+            {
+              int logical_width = output->width / output->scale;
+              int box_width = wmenu_width;
+              if (box_width > logical_width)
+                box_width = logical_width;
+              menu->width = box_width;
+              int left_margin = (logical_width - box_width) / 2;
+              zwlr_layer_surface_v1_set_size (layer_surface, box_width,
+                                              menu->height);
+              zwlr_layer_surface_v1_set_margin (layer_surface, 0, -1, 0,
+                                                left_margin);
+            }
+          else
+            {
+              zwlr_layer_surface_v1_set_size (layer_surface, 0, menu->height);
+              zwlr_layer_surface_v1_set_margin (layer_surface, 0, 0, 0, 0);
+            }
         }
     }
 
