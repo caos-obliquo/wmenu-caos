@@ -390,7 +390,43 @@ ipc_output_bar_geometry (void *data, struct zdwl_ipc_output_v2 *ipc_output,
     }
 }
 
+static void
+ipc_output_ignore (void *data, struct zdwl_ipc_output_v2 *ipc_output)
+{
+}
+
+static void
+ipc_output_ignore_u32 (void *data, struct zdwl_ipc_output_v2 *ipc_output,
+                       uint32_t value)
+{
+}
+
+static void
+ipc_output_ignore_u32x4 (void *data, struct zdwl_ipc_output_v2 *ipc_output,
+                         uint32_t v1, uint32_t v2, uint32_t v3, uint32_t v4)
+{
+}
+
+static void
+ipc_output_ignore_str (void *data, struct zdwl_ipc_output_v2 *ipc_output,
+                       const char *str)
+{
+}
+
+/* libwayland aborts when dispatching an event with a NULL listener slot:
+   dwl pushes an initial event batch (active, tag, layout, ...) right after
+   get_output, so every event needs a handler. */
 static const struct zdwl_ipc_output_v2_listener ipc_output_listener = {
+  .toggle_visibility = ipc_output_ignore,
+  .active = ipc_output_ignore_u32,
+  .tag = ipc_output_ignore_u32x4,
+  .layout = ipc_output_ignore_u32,
+  .title = ipc_output_ignore_str,
+  .appid = ipc_output_ignore_str,
+  .layout_symbol = ipc_output_ignore_str,
+  .frame = ipc_output_ignore,
+  .fullscreen = ipc_output_ignore_u32,
+  .floating = ipc_output_ignore_u32,
   .bar_geometry = ipc_output_bar_geometry,
 };
 
