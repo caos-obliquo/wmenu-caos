@@ -378,12 +378,12 @@ ipc_output_bar_geometry (void *data, struct zdwl_ipc_output_v2 *ipc_output,
 
   if (context->menu->position == POSITION_TOP_CENTER && context->layer_surface)
     {
-      /* match the pill to the dwl bar's SchemeNorm colors */
+      /* pill over the bar (active status on bar): Dracula purple */
       struct menu *menu = context->menu;
-      menu->normalbg = menu->promptbg = bg_color;
-      menu->normalfg = menu->promptfg = fg_color;
-      menu->selectionbg = fg_color;
-      menu->selectionfg = bg_color;
+      menu->normalbg = menu->promptbg = bar_pill_bg;
+      menu->normalfg = menu->promptfg = bar_pill_fg;
+      menu->selectionbg = bar_pill_sel_bg;
+      menu->selectionfg = bar_pill_sel_fg;
       reposition_bar_geometry (context);
       wl_surface_commit (context->surface);
       menu_invalidate (context->menu);
