@@ -273,15 +273,15 @@ render_to_cairo (struct menu *menu, cairo_t *cairo)
                          (menu->normalbg >> 16 & 0xFF) / 255.0,
                          (menu->normalbg >> 8 & 0xFF) / 255.0,
                          (menu->normalbg & 0xFF) / 255.0);
-  if (menu->position == POSITION_CENTER
-      || menu->position == POSITION_TOP_CENTER)
+  if (menu->position == POSITION_CENTER)
     {
-      // Pill shape: rounded corners, alpha-friendly fill.
+      // Floating launcher box: rounded pill.
       rounded_rect (cairo, 0, 0, menu->width, menu->height, 10);
       cairo_fill (cairo);
     }
   else
     {
+      // Over-the-bar (TOP_CENTER IPC): flat, matching the dwl bar.
       cairo_paint (cairo);
     }
 
