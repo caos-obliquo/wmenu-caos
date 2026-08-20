@@ -378,12 +378,23 @@ ipc_output_bar_geometry (void *data, struct zdwl_ipc_output_v2 *ipc_output,
 
   if (context->menu->position == POSITION_TOP_CENTER && context->layer_surface)
     {
-      /* pill over the bar (active status on bar): Dracula purple */
       struct menu *menu = context->menu;
-      menu->normalbg = menu->promptbg = bar_pill_bg;
-      menu->normalfg = menu->promptfg = bar_pill_fg;
-      menu->selectionbg = bar_pill_sel_bg;
-      menu->selectionfg = bar_pill_sel_fg;
+      if (middle_width > 0)
+        {
+          /* dwl bar has status toggled on: purple pill over the bar */
+          menu->normalbg = menu->promptbg = bar_pill_bg;
+          menu->normalfg = menu->promptfg = bar_pill_fg;
+          menu->selectionbg = bar_pill_sel_bg;
+          menu->selectionfg = bar_pill_sel_fg;
+        }
+      else
+        {
+          /* empty bar / no status yet: dark standalone */
+          menu->normalbg = menu->promptbg = bar_bg;
+          menu->normalfg = menu->promptfg = bar_fg;
+          menu->selectionbg = bar_sel_bg;
+          menu->selectionfg = bar_sel_fg;
+        }
       reposition_bar_geometry (context);
       wl_surface_commit (context->surface);
       menu_invalidate (context->menu);
