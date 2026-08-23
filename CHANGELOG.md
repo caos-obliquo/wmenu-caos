@@ -11,6 +11,10 @@ this project adheres to [Semantic Versioning](https://semver.org/).
 - First frame renders at the final pill position: wmenu now waits for the
   compositor's bar_geometry (second commit + roundtrip) before its first
   render, instead of drawing one fallback frame at the default position
+- Empty workspace: when the compositor reports an empty middle section
+  (middle_width=0, no focused client), the menu positions at the title
+  start with the configured width instead of centering, so it does not
+  cover the right-side status icons
 
 ## [0.2.1] - 2026-08-05
 
