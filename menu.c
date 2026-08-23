@@ -519,13 +519,10 @@ menu_invalidate (struct menu *menu)
   menu->rendered = false;
 }
 
-// Render menu items.
+// Recalculate the menu height now that all items are loaded.
 void
-menu_render_items (struct menu *menu)
+menu_compute_height (struct menu *menu)
 {
-  calc_widths (menu);
-
-  /* recalculate height now that all items are loaded */
   if (menu->lines > 0)
     {
       menu->height = menu->line_height;
@@ -539,7 +536,14 @@ menu_render_items (struct menu *menu)
           menu->height += item->thumb_path ? 160 : menu->line_height;
         }
     }
+}
 
+// Render menu items. The caller is responsible for sizing the menu
+// (menu_compute_height / reposition_bar_geometry) before calling this.
+void
+menu_render_items (struct menu *menu)
+{
+  calc_widths (menu);
   match_items (menu);
   render_menu (menu);
 }

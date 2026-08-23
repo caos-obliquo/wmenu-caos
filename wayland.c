@@ -858,21 +858,36 @@ menu_run (struct menu *menu)
                                       context);
   wl_surface_commit (context->surface);
   wl_display_roundtrip (context->display);
-  menu_render_items (menu);
 
-  /* capture the dropdown list height once: menu_render_items overwrites
-     menu->height (prompt + lines) only when lines > 0, and reusing it here
-     keeps bar_geometry repositioning drift-free */
+  if (menu->position == POSITION_TOP_CENTER)
+    {
+      /* Second commit (no buffer): triggers the compositor's keyboard grab
+         and focus change, which makes dwl push bar_geometry. Without this,
+         the first rendered frame would use the fallback position (flash). */
+      wl_surface_commit (context->surface);
+      wl_display_roundtrip (context->display);
+    }
+
+  /* compute the dropdown list height once (no render yet) */
+  menu_compute_height (menu);
   if (menu->lines > 0)
     {
       context->ipc_list_height = menu->height - menu->line_height;
     }
+
   if (context->have_ipc_geometry && context->layer_surface)
     {
+      /* position at the pill BEFORE the first render so the first visible
+         frame is already correct */
       reposition_bar_geometry (context);
+      /* commit + roundtrip so the compositor's configure for the new size
+         is acked before the first buffer commit (otherwise the buffer is
+         scaled to the previous size) */
       wl_surface_commit (context->surface);
-      menu_invalidate (menu);
+      wl_display_roundtrip (context->display);
     }
+
+  menu_render_items (menu);
 
   struct pollfd fds[] = {
     { wl_display_get_fd (context->display), POLLIN },
