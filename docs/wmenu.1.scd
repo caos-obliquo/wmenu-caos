@@ -37,8 +37,11 @@ $PATH and runs the result.
 	wmenu is centered on the output.
 
 *-t*
-	wmenu appears as a top-center title bar; its geometry is read from
-	/tmp/dwlb-geometry.
+	wmenu appears as a top-center title bar; its geometry (position, width,
+	bar height) is read from the dwl-ipc *bar_geometry* event. On an empty
+	workspace (no focused client) dwl reports *middle_width = 0* and wmenu
+	renders with the dark *bar_bg*/*bar_fg* colors at the title start instead
+	of the purple pill.
 
 *-i*
 	wmenu matches menu items case insensitively.
@@ -85,7 +88,7 @@ $PATH and runs the result.
 	defines the menu background color.
 
 *-w* _width_
-	defines the menu width (clamped to 3/5 of the output width, 400-900px).
+	defines the minimum menu width in pixels.
 
 # IMAGES
 

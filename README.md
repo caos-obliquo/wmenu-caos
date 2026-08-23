@@ -1,8 +1,8 @@
 # wmenu-caos
 
-dmenu-style Wayland picker with image thumbnail previews and dwlb-style
+dmenu-style Wayland picker with image thumbnail previews and dwl bar-style
 positioning. Fork of [wmenu](https://sr.ht/~adnano/wmenu/), tuned for use with
-[dwl](https://codeberg.org/dwl/dwl) and dwlb.
+[dwl](https://codeberg.org/dwl/dwl).
 
 ## Features
 
@@ -10,12 +10,13 @@ positioning. Fork of [wmenu](https://sr.ht/~adnano/wmenu/), tuned for use with
   image. The PNG is scaled to 128px on its longest side and drawn vertically
   centered in a 160px row; the `[img:]` prefix is stripped before the selection
   is printed to stdout, so callers receive the plain text line.
-- `-t` top-center (title-bar) positioning: reads the dwlb active-monitor
-  geometry from `/tmp/dwlb-geometry` when present, so the bar overlays the
-  correct monitor.
+- `-t` top-center (title-bar) positioning: reads the dwl bar geometry via the
+  dwl-ipc protocol (`bar_geometry` event) and overlays the bar's title area as
+  a pill. On an empty workspace (no focused client) dwl reports no pill, so the
+  menu spawns dark at the title start instead of covering the status icons.
 - `-c` centered positioning.
 - Vertical lists page with arrow keys: `-l` entries per page, image rows 160px tall.
-- dwlb-matching color defaults in `config.h`.
+- dwl bar-matching color defaults in `config.h`.
 
 ## Requirements
 
@@ -107,12 +108,18 @@ this protocol to show clipboard image history:
 
 ## Configuration
 
-Colors live in `config.h` (tracked; defaults match the dwlb active-monitor
-palette):
+Colors live in `config.h` (tracked; defaults match the dwl bar palette):
 
-	dwlb_middle_bg    bar mode (-t) background, #RRGGBBAA
-	dwlb_middle_fg    bar mode (-t) foreground
-	dwlb_bar_height   bar mode (-t) height in pixels
+	bar_bg            standalone background, #RRGGBBAA (dark, empty workspace)
+	bar_fg            standalone foreground
+	bar_sel_bg        selection background (purple)
+	bar_sel_fg        selection foreground
+	bar_border        border (same as bg → flat)
+	bar_pill_bg       on-bar pill background (-t, dwl IPC active)
+	bar_pill_fg       on-bar pill foreground
+	bar_pill_sel_bg   on-bar pill selection background
+	bar_pill_sel_fg   on-bar pill selection foreground
+	wmenu_width       -t menu width in pixels
 
 Edit `config.h` and rebuild.
 
