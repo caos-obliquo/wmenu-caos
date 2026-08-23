@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
-# Optimized clipboard picker for wmenu-dwlb
-# Requires: kapc, cclip, wmenu-dwlb, magick
+# Optimized clipboard picker for wmenu-caos
+# Requires: kapc, cclip, wmenu-caos
 
 THUMB_DIR="/tmp/kt"
 mkdir -p "$THUMB_DIR"
