@@ -4,6 +4,14 @@ All notable changes to this project are documented here.
 The format is based on [Keep a Changelog](https://keepachangelog.com/), and
 this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [Unreleased]
+
+### Fixed
+
+- First frame renders at the final pill position: wmenu now waits for the
+  compositor's bar_geometry (second commit + roundtrip) before its first
+  render, instead of drawing one fallback frame at the default position
+
 ## [0.2.1] - 2026-08-05
 
 ### Fixed
